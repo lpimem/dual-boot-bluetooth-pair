@@ -1,5 +1,17 @@
+#!/usr/bin/env python3
+
 import configparser
 import argparse
+
+'''
+    This script will parse the cleaned reg file and output the following items:
+    1. Installed Bluetooth MAC address. This will also be the folder you need
+       to find in /var/lib/bluetooth directory.  
+    2. For each paired device:
+        - MAC Address
+        - Link Key
+
+'''
 
 
 def _parse_args():
@@ -30,62 +42,30 @@ def _insert_mac_colons(mac):
 def _bluetooth_dir_name(section_name):
     """ Return the bluetooth directory name."""
     full_path = section_name.split('\\')
-    last_two_macs = full_path[-2:]
-    path_parts = []
-    for mac in last_two_macs:
-        path_parts.append(_insert_mac_colons(mac))
-
-    return '/'.join(path_parts)
-
-
-def _format_erand(erand):
-    """ Reverse erang and return uppercase."""
-    erand = erand.replace('hex(b):', '')
-    erand_parts = erand.split(',')
-    erand_parts.reverse()
-    hex_str = ''.join(erand_parts)
-    dec = int(hex_str, 16)
-
-    return dec
-
-
-def _format_ediv(ediv):
-    """ Convert ediv to decimal and return."""
-    ediv = ediv.replace('dword:', '')
-    return int(ediv, 16)
-
-
-
-def _format_ltk(ltk):
-    """ Convert LTK to uppercase and remove commas."""
-    return ltk.lstrip('hex:').upper().replace(',', '')
-
-
-def _format_csrk(csrk):
-    """ Convert CSRK to uppercase and remove commas."""
-    return csrk.replace('hex:', '').replace(',', '').upper()
+    mac = full_path[-1]
+    return _insert_mac_colons(mac)
 
 
 def _process_reg_file(config):
     """ Process the reg file."""
     sections = config.sections()
     for section in sections:
-        if len(config[section]) != 10:
+        if len(config[section]) == 0:
             continue
-        print('\n')
-        print('Dir Name: /usr/lib/bluetooth/{}'.format(
-            _bluetooth_dir_name(section)))
-        print('LongTermKey')
-        print('  Key: {}'.format(_format_ltk(config[section]['LTK'])))
-        print('  EncSize: 16')
-        print('  EDiv: {}'.format(_format_ediv(config[section]['EDIV'])))
-        print('  Rand: {}'.format(_format_erand(config[section]['ERand'])))
-        print('LocalSignatureKey')
-        print('  Key: {}'.format(
-            _format_csrk(config[section]['CSRK'])))
-        print('\n====================================\n')
-
-
+        bluetooth_dir = _bluetooth_dir_name(section)
+        print("Installed BT MAC (Dirname):")
+        print(bluetooth_dir)
+        print("= " * 10)
+        print("P A I R E D    D E V I C E S:")
+        print("- " * 10)
+        for mac in config[section]: 
+            key =config[section][mac]
+            key = key.replace("hex:", "")
+            key = key.replace(",", "")
+            print("MAC:", _insert_mac_colons(mac))
+            print("KEY:", key)
+            print("- " * 10)
+        
 def main():
     """ Main entrypoint to script. """
     args = _parse_args()
@@ -95,11 +75,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-# reg_str = reg_file_to_str('/home/mark/Desktop/BTKeys.reg')
-# file_path_to_dict(reg_str)
-
-
-
-# Print
