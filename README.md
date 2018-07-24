@@ -4,6 +4,19 @@ This is a tool originally created by [LondonAppDeveloper](https://github.com/Lon
 
 I modified it to work on _Windows 10 Home Edition_ and _Ubuntu 18.04 LTS_. 
 
+## The Problem 
+
+If you installed both Windows and Linux on the same machine and use the same Bluetooth devices on both OS, you may find yourself re-pairing the devices everytime you switch the OS. The instructions and scripts in this project can help you be able to pair the devices only once on each OS. 
+
+### Reason of the problem
+
+When a Bluetooth pairing process is done, a link key is negotiated between the device and the OS. If the device identifies the other paired party by its adapter MAC address only, it cannot distinguish between the two OS as they share the same Bluetooth adapter with only one MAC address. After pairing with the second OS, the key negotiated with the first OS will be overwritten even if the device supports multiple pairing connections. And the first OS cannot know the link key changed. 
+
+### Solution 
+
+First, we pair the device with Ubuntu and Windows. Now the Windows' link key is up-to-date but Ubuntu's is invalid. 
+Then, we copy the link key from Windows 10 to Ubuntu so that the two OS share the same link key.
+
 ## Disclaimer
 
 This script involves accessing and modifying system files on the Windows / Linux systems and may risk damaging your computer. 
